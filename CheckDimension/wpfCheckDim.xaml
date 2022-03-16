@@ -1,0 +1,42 @@
+﻿<Window x:Class="CheckDimension.wpfCheckDim"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:CheckDimension"
+             mc:Ignorable="d" 
+             Height="150"
+            Width="500"
+            Topmost="True"
+             WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <ResourceDictionary>
+            <Style x:Key="buttonCustomer" TargetType="Button">
+                <Setter Property="Width" Value="60"/>
+                <Setter Property="Height" Value="30"/>
+                <Setter Property="Background" Value="BlueViolet"/>
+            </Style>
+        </ResourceDictionary>
+        
+    </Window.Resources>
+    <Grid Margin="5">
+        <Grid.ColumnDefinitions  >
+            <ColumnDefinition Width="100"/>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="100"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <TextBlock VerticalAlignment="Center" Text="Input:"/>
+        <TextBox Height="30" Name="txtFolderInput" Grid.Column="1" VerticalContentAlignment="Center"/>
+        <TextBlock Grid.Row="1" VerticalAlignment="Center" Text="OutPut:"/>
+        <TextBox Height="30" Name="txtFolderOutput" Grid.Row="1" Grid.Column="1" VerticalContentAlignment="Center"/>
+        
+        <Button Background="Aqua" HorizontalAlignment="Right" Grid.Column="3" Grid.Row="0" Style="{StaticResource buttonCustomer}" Content="Folder" Click="btnInput"/>
+        <Button Background="Beige" HorizontalAlignment="Right" Grid.Column="3" Grid.Row="1" Style="{StaticResource buttonCustomer}" Content="Folder" Click="btnOutput"/>
+        <Button HorizontalAlignment="Right" Grid.Column="3" Grid.Row="2" Style="{StaticResource buttonCustomer}" Content="Check" Click="btnCheckDim"/>
+    </Grid>
+</Window>
