@@ -32,7 +32,7 @@
         </Grid.RowDefinitions>
         <TextBlock VerticalAlignment="Center" Text="Input:"/>
         <TextBox Height="30" Name="txtFolderInput" Grid.Column="1" VerticalContentAlignment="Center"/>
-        <TextBlock Grid.Row="1" VerticalAlignment="Center" Text="OutPut:"/>
+        <TextBlock Grid.Row="1" VerticalAlignment="Center" Text="Output:"/>
         <TextBox Height="30" Name="txtFolderOutput" Grid.Row="1" Grid.Column="1" VerticalContentAlignment="Center"/>
         
         <Button Background="Aqua" HorizontalAlignment="Right" Grid.Column="3" Grid.Row="0" Style="{StaticResource buttonCustomer}" Content="Folder" Click="btnInput"/>

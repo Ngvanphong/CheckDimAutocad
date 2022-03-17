@@ -94,7 +94,6 @@ namespace CheckDimension
                 blockTable = t.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
                 BlockTableRecord blockTableRecord;
                 blockTableRecord = t.GetObject(blockTable[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
-                //BlockTableRecord tableRecord = t.GetObject(db.CurrentSpaceId, OpenMode.ForWrite) as BlockTableRecord;
                 foreach (ObjectId objId in blockTableRecord)
                 {
                     Dimension dim = t.GetObject(objId, OpenMode.ForRead) as Dimension;
@@ -105,7 +104,6 @@ namespace CheckDimension
                             isEditDim = true;
                             if (dim.DimensionText != "")
                             {
-                                //dim.Dimclrt= Autodesk.AutoCAD.Colors.Color.FromRgb(255, 0, 0);
                                 var locationText = dim.TextPosition;
                                 Circle circle = new Circle();
                                 circle.SetDatabaseDefaults();

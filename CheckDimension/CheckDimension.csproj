@@ -68,7 +68,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CheckDimAppShow.cs" />
-    <Compile Include="Constants.cs" />
     <Compile Include="Initialization.cs" />
     <Compile Include="MyCommands.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
