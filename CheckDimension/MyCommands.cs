@@ -28,7 +28,6 @@ namespace CheckDimension
             DirectoryInfo directoryInfor= new DirectoryInfo(folderInput);
             FileInfo[] fileDwgs = directoryInfor.GetFiles("*.dwg");
             Database currentDatabase = Application.DocumentManager.MdiActiveDocument.Database;
-           
             foreach(var drawing in fileDwgs)
             {
                 using (Database db = new Database(false, true))
@@ -61,16 +60,6 @@ namespace CheckDimension
             dim.DimensionText = newValue;
         }
 
-        private void ExploreAllBlock(BlockReference blockRef)
-        {
-            DBObjectCollection entitySet = new DBObjectCollection();
-            blockRef.Explode(entitySet);
-            foreach (DBObject obj in entitySet)
-            {
-                BlockReference blockItem = obj as BlockReference;
-                
-            }
-        }
         private bool CheckEditDim(Database db)
         {
             try
