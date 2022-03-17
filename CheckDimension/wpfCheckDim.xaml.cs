@@ -12,6 +12,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.IO;
+using System.Windows.Forms;
+
+
 
 namespace CheckDimension
 {
@@ -27,17 +31,27 @@ namespace CheckDimension
 
         private void btnInput(object sender, RoutedEventArgs e)
         {
-
+            txtFolderInput.Text = pathFolder();
         }
 
         private void btnOutput(object sender, RoutedEventArgs e)
         {
-
+            txtFolderInput.Text = pathFolder();
         }
 
         private void btnCheckDim(object sender, RoutedEventArgs e)
         {
-
+            this.Close();
+        }
+        private string pathFolder()
+        {
+            string path=string.Empty;
+            FolderBrowserDialog diglog = new FolderBrowserDialog();
+            if (diglog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                path = diglog.SelectedPath;
+            }
+            return path;
         }
     }
 }

@@ -28,7 +28,7 @@
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition/>
-            <RowDefinition Height="40"/>
+            <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
         <TextBlock VerticalAlignment="Center" Text="Input:"/>
         <TextBox Height="30" Name="txtFolderInput" Grid.Column="1" VerticalContentAlignment="Center"/>

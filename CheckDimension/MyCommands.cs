@@ -9,6 +9,7 @@ using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.Geometry;
 using Autodesk.AutoCAD.EditorInput;
 using System.Reflection;
+using System.IO;
 
 [assembly: CommandClass(typeof(CheckDimension.MyCommands))]
 namespace CheckDimension
@@ -18,38 +19,123 @@ namespace CheckDimension
         [CommandMethod("checkdim")]
         public void DimensionShow()
         {
-            Document doc = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
-            Editor editor = doc.Editor;
-            Database db = doc.Database;
 
-            CheckDimAppShow.wpfCheckDim= new wpfCheckDim();
+            CheckDimAppShow.wpfCheckDim = new wpfCheckDim();
             Application.ShowModalWindow(Application.MainWindow.Handle, CheckDimAppShow.wpfCheckDim, false);
             string folderInput = CheckDimAppShow.wpfCheckDim.txtFolderInput.Text;
             string folderOutput = CheckDimAppShow.wpfCheckDim.txtFolderOutput.Text;
-            if (string.IsNullOrEmpty(folderInput)||string.IsNullOrEmpty(folderOutput)) return;
-            IList<Dimension> listDim= new List<Dimension>();
-            using(Transaction t= doc.TransactionManager.StartOpenCloseTransaction())
+            if (string.IsNullOrEmpty(folderInput) || string.IsNullOrEmpty(folderOutput)) return;
+            DirectoryInfo directoryInfor= new DirectoryInfo(folderInput);
+            FileInfo[] fileDwgs = directoryInfor.GetFiles("*.dwg");
+            Database currentDatabase = Application.DocumentManager.MdiActiveDocument.Database;
+            foreach(var drawing in fileDwgs)
             {
-                BlockTableRecord tableRecord = t.GetObject(db.CurrentSpaceId, OpenMode.ForRead) as BlockTableRecord;
-                foreach(ObjectId objId in tableRecord)
+                using (Database db = new Database(false, true))
                 {
-                    Dimension dim = t.GetObject(objId, OpenMode.ForWrite) as Dimension;
-                    if (dim != null)
+                    try
                     {
-                        listDim.Add(dim);
-                        if (!string.IsNullOrEmpty(dim.DimensionText))
+                        db.ReadDwgFile(drawing.FullName, FileOpenMode.OpenForReadAndAllShare, false, null);
+                        HostApplicationServices.WorkingDatabase = db;
+                        bool isEditDim = CheckEditDim(db);
+                        if (isEditDim)
                         {
-                            if (dim.DimensionText != "")
+                            string fileSave = folderOutput + @"\" + drawing.Name + "_CheckDim" + ".dwg";
+                            db.SaveAs(fileSave, DwgVersion.Current);
+                        }
+                    }
+                    catch { }
+                   
+                }
+                HostApplicationServices.WorkingDatabase = currentDatabase;
+            }
+            Application.ShowAlertDialog("Successed");
+        }
+        private bool CheckEditDim(Database db)
+        {
+            IList<Point3d> listPoints = new List<Point3d>();
+            try
+            {
+                using (Transaction t2 = db.TransactionManager.StartTransaction())
+                {
+                    BlockTable blockTable = t2.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
+                    BlockTableRecord blockTableRecord = t2.GetObject(blockTable[BlockTableRecord.ModelSpace], OpenMode.ForRead) as BlockTableRecord;
+                    foreach (ObjectId objId in blockTableRecord)
+                    {
+                        BlockReference blockRef = t2.GetObject(objId, OpenMode.ForRead) as BlockReference;
+                        if (blockRef != null)
+                        {
+                            DBObjectCollection entitySet = new DBObjectCollection();
+                            blockRef.Explode(entitySet);
+                            foreach (DBObject obj in entitySet)
                             {
-                                //dim.Color = Autodesk.AutoCAD.Colors.Color.FromRgb(255, 0, 0);
-                                dim.Dimclrt= Autodesk.AutoCAD.Colors.Color.FromRgb(255, 0, 0);
+                                Dimension dim = obj as Dimension;
+                                if (dim != null)
+                                {
+                                    if (!string.IsNullOrEmpty(dim.DimensionText))
+                                    {
+                                        if (dim.DimensionText != "")
+                                        {
+                                            listPoints.Add(dim.TextPosition);
+                                        }
+                                    }
+                                }
                             }
                         }
+                    }
+                    t2.Commit();
+                }
+            }
+            catch { }
+
+            bool isEditDim = false;
+            using (Transaction t = db.TransactionManager.StartTransaction())
+            {
+                BlockTable blockTable;
+                blockTable = t.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
+                BlockTableRecord blockTableRecord;
+                blockTableRecord = t.GetObject(blockTable[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
+                //BlockTableRecord tableRecord = t.GetObject(db.CurrentSpaceId, OpenMode.ForWrite) as BlockTableRecord;
+                foreach (ObjectId objId in blockTableRecord)
+                {
+                    Dimension dim = t.GetObject(objId, OpenMode.ForRead) as Dimension;
+                    if (dim != null)
+                    {
+                        if (!string.IsNullOrEmpty(dim.DimensionText))
+                        {
+                            isEditDim = true;
+                            if (dim.DimensionText != "")
+                            {
+                                //dim.Dimclrt= Autodesk.AutoCAD.Colors.Color.FromRgb(255, 0, 0);
+                                var locationText = dim.TextPosition;
+                                Circle circle = new Circle();
+                                circle.SetDatabaseDefaults();
+                                circle.Center = locationText;
+                                circle.Radius = 2000;
+                                circle.Color = Autodesk.AutoCAD.Colors.Color.FromRgb(255, 0, 0);
+                                blockTableRecord.AppendEntity(circle);
+                                t.AddNewlyCreatedDBObject(circle, true);
+                            }
+                        }
+                    }
+
+                }
+                if (listPoints.Count > 0)
+                {
+                    isEditDim = true;
+                    foreach (Point3d point in listPoints)
+                    {
+                        Circle circle = new Circle();
+                        circle.SetDatabaseDefaults();
+                        circle.Center = point;
+                        circle.Radius = 2000;
+                        circle.Color = Autodesk.AutoCAD.Colors.Color.FromRgb(255, 0, 0);
+                        blockTableRecord.AppendEntity(circle);
+                        t.AddNewlyCreatedDBObject(circle, true);
                     }
                 }
                 t.Commit();
             }
-           
+            return isEditDim;
         }
     }
 }
