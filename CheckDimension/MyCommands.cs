@@ -39,7 +39,7 @@ namespace CheckDimension
                         if (isEditDim)
                         {
                             string fileSave = folderOutput + @"\" + drawing.Name.Split('.').First() + "_DimChecked" + ".dwg";
-                            db.SaveAs(fileSave, DwgVersion.Current);
+                            db.SaveAs(fileSave,DwgVersion.Current);
                         }
                     }
                     catch { }
@@ -53,9 +53,9 @@ namespace CheckDimension
         private void FixTextDim(ref Dimension dim)
         {
             dim.Dimclrt = Autodesk.AutoCAD.Colors.Color.FromRgb(255, 255, 0);
-            dim.Dimtxt = dim.Dimtxt * 2;
+            //dim.Dimtxt = dim.Dimtxt * 2;
             string oldValue = dim.DimensionText;
-            string newValue = dim.DimensionText + "\n\r" + @"[実寸=" + Math.Round(dim.Measurement, 3).ToString() + "]";
+            string newValue = dim.DimensionText + "\r\n" + @"[実寸=" + Math.Round(dim.Measurement, 3).ToString() + "]";
             dim.DimensionText = newValue;
         }
 
@@ -72,18 +72,23 @@ namespace CheckDimension
                         BlockReference blockRef = t2.GetObject(objId, OpenMode.ForWrite,true,true) as BlockReference;
                         if (blockRef != null)
                         {
-                            DBObjectCollection entitySet = new DBObjectCollection();
-                            blockRef.Explode(entitySet);
-                            foreach (DBObject obj in entitySet)
+                            try
                             {
-                                if (obj is Entity)
+                                DBObjectCollection entitySet = new DBObjectCollection();
+                                blockRef.Explode(entitySet);
+                                foreach (DBObject obj in entitySet)
                                 {
-                                    blockTableRecord.AppendEntity((Entity)obj);
-                                    t2.AddNewlyCreatedDBObject(obj, true);
+                                    if (obj is Entity)
+                                    {
+                                        blockTableRecord.AppendEntity((Entity)obj);
+                                        t2.AddNewlyCreatedDBObject(obj, true);
+                                    }
                                 }
+                                blockRef.Erase();
+                                blockRef.Dispose();
                             }
-                            blockRef.Erase();
-                            blockRef.Dispose();
+                            catch { }
+                           
                         }
                     }
                     t2.Commit();
