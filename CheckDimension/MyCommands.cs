@@ -19,16 +19,15 @@ namespace CheckDimension
         [CommandMethod("checkdim")]
         public void DimensionShow()
         {
-
             CheckDimAppShow.wpfCheckDim = new wpfCheckDim();
             Application.ShowModalWindow(Application.MainWindow.Handle, CheckDimAppShow.wpfCheckDim, false);
             string folderInput = CheckDimAppShow.wpfCheckDim.txtFolderInput.Text;
             string folderOutput = CheckDimAppShow.wpfCheckDim.txtFolderOutput.Text;
             if (string.IsNullOrEmpty(folderInput) || string.IsNullOrEmpty(folderOutput)) return;
-            DirectoryInfo directoryInfor= new DirectoryInfo(folderInput);
+            DirectoryInfo directoryInfor = new DirectoryInfo(folderInput);
             FileInfo[] fileDwgs = directoryInfor.GetFiles("*.dwg");
             Database currentDatabase = Application.DocumentManager.MdiActiveDocument.Database;
-            foreach(var drawing in fileDwgs)
+            foreach (var drawing in fileDwgs)
             {
                 using (Database db = new Database(false, true))
                 {
@@ -44,7 +43,7 @@ namespace CheckDimension
                         }
                     }
                     catch { }
-                   
+
                 }
                 HostApplicationServices.WorkingDatabase = currentDatabase;
             }
@@ -53,10 +52,10 @@ namespace CheckDimension
 
         private void FixTextDim(ref Dimension dim)
         {
-            dim.Dimclrt= Autodesk.AutoCAD.Colors.Color.FromRgb(255, 255, 0);
+            dim.Dimclrt = Autodesk.AutoCAD.Colors.Color.FromRgb(255, 255, 0);
             dim.Dimtxt = dim.Dimtxt * 2;
             string oldValue = dim.DimensionText;
-            string newValue = dim.DimensionText +"\n\r"+ @"[実寸="+Math.Round(dim.Measurement,3).ToString()+"]";
+            string newValue = dim.DimensionText + "\n\r" + @"[実寸=" + Math.Round(dim.Measurement, 3).ToString() + "]";
             dim.DimensionText = newValue;
         }
 
@@ -70,23 +69,22 @@ namespace CheckDimension
                     BlockTableRecord blockTableRecord = t2.GetObject(blockTable[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
                     foreach (ObjectId objId in blockTableRecord)
                     {
-                        BlockReference blockRef = t2.GetObject(objId, OpenMode.ForWrite) as BlockReference;
+                        BlockReference blockRef = t2.GetObject(objId, OpenMode.ForWrite,true,true) as BlockReference;
                         if (blockRef != null)
                         {
                             DBObjectCollection entitySet = new DBObjectCollection();
                             blockRef.Explode(entitySet);
                             foreach (DBObject obj in entitySet)
                             {
-                                if(obj is Entity)
+                                if (obj is Entity)
                                 {
                                     blockTableRecord.AppendEntity((Entity)obj);
-                                    t2.AddNewlyCreatedDBObject(obj,true);
+                                    t2.AddNewlyCreatedDBObject(obj, true);
                                 }
                             }
                             blockRef.Erase();
                             blockRef.Dispose();
                         }
-
                     }
                     t2.Commit();
                 }
@@ -102,7 +100,7 @@ namespace CheckDimension
                 blockTableRecord = t.GetObject(blockTable[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
                 foreach (ObjectId objId in blockTableRecord)
                 {
-                    Dimension dim = t.GetObject(objId, OpenMode.ForWrite) as Dimension;
+                    Dimension dim = t.GetObject(objId, OpenMode.ForWrite,true,true) as Dimension;
                     if (dim != null)
                     {
                         if (!string.IsNullOrEmpty(dim.DimensionText))
