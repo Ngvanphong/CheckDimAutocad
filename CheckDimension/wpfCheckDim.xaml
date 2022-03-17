@@ -8,7 +8,10 @@
              Height="150"
             Width="500"
             Topmost="True"
-             WindowStartupLocation="CenterScreen">
+             WindowStartupLocation="CenterScreen"
+            Title="TobicProgramming" Icon="/CheckDimension;component/Resources/icons8-query-outer-join-left-32.png"
+            
+        >
     <Window.Resources>
         <ResourceDictionary>
             <Style x:Key="buttonCustomer" TargetType="Button">

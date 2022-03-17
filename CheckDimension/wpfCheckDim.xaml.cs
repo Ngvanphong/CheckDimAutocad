@@ -27,6 +27,7 @@ namespace CheckDimension
         public wpfCheckDim()
         {
             InitializeComponent();
+            
         }
 
         private void btnInput(object sender, RoutedEventArgs e)
