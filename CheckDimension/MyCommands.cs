@@ -28,6 +28,7 @@ namespace CheckDimension
             DirectoryInfo directoryInfor= new DirectoryInfo(folderInput);
             FileInfo[] fileDwgs = directoryInfor.GetFiles("*.dwg");
             Database currentDatabase = Application.DocumentManager.MdiActiveDocument.Database;
+           
             foreach(var drawing in fileDwgs)
             {
                 using (Database db = new Database(false, true))
@@ -39,7 +40,7 @@ namespace CheckDimension
                         bool isEditDim = CheckEditDim(db);
                         if (isEditDim)
                         {
-                            string fileSave = folderOutput + @"\" + drawing.Name + "_CheckDim" + ".dwg";
+                            string fileSave = folderOutput + @"\" + drawing.Name.Split('.').First() + "_DimChecked" + ".dwg";
                             db.SaveAs(fileSave, DwgVersion.Current);
                         }
                     }
@@ -50,37 +51,53 @@ namespace CheckDimension
             }
             Application.ShowAlertDialog("Successed");
         }
+
+        private void FixTextDim(ref Dimension dim)
+        {
+            dim.Dimclrt= Autodesk.AutoCAD.Colors.Color.FromRgb(255, 255, 0);
+            dim.Dimtxt = dim.Dimtxt * 2;
+            string oldValue = dim.DimensionText;
+            string newValue = dim.DimensionText +"\n\r"+ @"[実寸="+Math.Round(dim.Measurement,3).ToString()+"]";
+            dim.DimensionText = newValue;
+        }
+
+        private void ExploreAllBlock(BlockReference blockRef)
+        {
+            DBObjectCollection entitySet = new DBObjectCollection();
+            blockRef.Explode(entitySet);
+            foreach (DBObject obj in entitySet)
+            {
+                BlockReference blockItem = obj as BlockReference;
+                
+            }
+        }
         private bool CheckEditDim(Database db)
         {
-            IList<Point3d> listPoints = new List<Point3d>();
             try
             {
                 using (Transaction t2 = db.TransactionManager.StartTransaction())
                 {
                     BlockTable blockTable = t2.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
-                    BlockTableRecord blockTableRecord = t2.GetObject(blockTable[BlockTableRecord.ModelSpace], OpenMode.ForRead) as BlockTableRecord;
+                    BlockTableRecord blockTableRecord = t2.GetObject(blockTable[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
                     foreach (ObjectId objId in blockTableRecord)
                     {
-                        BlockReference blockRef = t2.GetObject(objId, OpenMode.ForRead) as BlockReference;
+                        BlockReference blockRef = t2.GetObject(objId, OpenMode.ForWrite) as BlockReference;
                         if (blockRef != null)
                         {
                             DBObjectCollection entitySet = new DBObjectCollection();
                             blockRef.Explode(entitySet);
                             foreach (DBObject obj in entitySet)
                             {
-                                Dimension dim = obj as Dimension;
-                                if (dim != null)
+                                if(obj is Entity)
                                 {
-                                    if (!string.IsNullOrEmpty(dim.DimensionText))
-                                    {
-                                        if (dim.DimensionText != "")
-                                        {
-                                            listPoints.Add(dim.TextPosition);
-                                        }
-                                    }
+                                    blockTableRecord.AppendEntity((Entity)obj);
+                                    t2.AddNewlyCreatedDBObject(obj,true);
                                 }
                             }
+                            blockRef.Erase();
+                            blockRef.Dispose();
                         }
+
                     }
                     t2.Commit();
                 }
@@ -96,40 +113,27 @@ namespace CheckDimension
                 blockTableRecord = t.GetObject(blockTable[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
                 foreach (ObjectId objId in blockTableRecord)
                 {
-                    Dimension dim = t.GetObject(objId, OpenMode.ForRead) as Dimension;
+                    Dimension dim = t.GetObject(objId, OpenMode.ForWrite) as Dimension;
                     if (dim != null)
                     {
                         if (!string.IsNullOrEmpty(dim.DimensionText))
                         {
-                            isEditDim = true;
                             if (dim.DimensionText != "")
                             {
-                                var locationText = dim.TextPosition;
-                                Circle circle = new Circle();
-                                circle.SetDatabaseDefaults();
-                                circle.Center = locationText;
-                                circle.Radius = 2000;
-                                circle.Color = Autodesk.AutoCAD.Colors.Color.FromRgb(255, 0, 0);
-                                blockTableRecord.AppendEntity(circle);
-                                t.AddNewlyCreatedDBObject(circle, true);
+                                FixTextDim(ref dim);
+                                isEditDim = true;
+                                //var locationText = dim.TextPosition;
+                                //Circle circle = new Circle();
+                                //circle.SetDatabaseDefaults();
+                                //circle.Center = locationText;
+                                //circle.Radius = 2000;
+                                //circle.Color = Autodesk.AutoCAD.Colors.Color.FromRgb(255, 0, 0);
+                                //blockTableRecord.AppendEntity(circle);
+                                //t.AddNewlyCreatedDBObject(circle, true);
                             }
                         }
                     }
 
-                }
-                if (listPoints.Count > 0)
-                {
-                    isEditDim = true;
-                    foreach (Point3d point in listPoints)
-                    {
-                        Circle circle = new Circle();
-                        circle.SetDatabaseDefaults();
-                        circle.Center = point;
-                        circle.Radius = 2000;
-                        circle.Color = Autodesk.AutoCAD.Colors.Color.FromRgb(255, 0, 0);
-                        blockTableRecord.AppendEntity(circle);
-                        t.AddNewlyCreatedDBObject(circle, true);
-                    }
                 }
                 t.Commit();
             }
