@@ -1,21 +1,16 @@
 ﻿using Autodesk.AutoCAD.Ribbon;
 using Autodesk.Windows;
 using CheckDimension.Properties;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CheckDimension.RibbonButtons
 {
     public static class DimensionButton
     {
-       public static RibbonPanel AddOnePanel(string panelName)
+        public static RibbonPanel AddOnePanel(string panelName)
         {
             RibbonCommandButton rb;
             RibbonPanelSource rps = new RibbonPanelSource();
-            rps.Title =panelName;
+            rps.Title = panelName;
             RibbonPanel rp = new RibbonPanel();
             rp.Source = rps;
 
@@ -32,7 +27,7 @@ namespace CheckDimension.RibbonButtons
             rb.Orientation = System.Windows.Controls.Orientation.Vertical;
             rb.Size = RibbonItemSize.Large;
             rb.CommandHandler = new RibbonCommandHandler();
-
+            
 
             //Add the Button to the Tab
             rps.Items.Add(rb);
