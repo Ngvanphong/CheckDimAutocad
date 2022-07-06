@@ -10,6 +10,7 @@ using Autodesk.AutoCAD.Geometry;
 using Autodesk.AutoCAD.EditorInput;
 using System.Reflection;
 using System.IO;
+using Autodesk.AutoCAD.Customization;
 
 [assembly: CommandClass(typeof(CheckDimension.MyCommands))]
 namespace CheckDimension
@@ -49,6 +50,8 @@ namespace CheckDimension
             }
             Application.ShowAlertDialog("Successed");
         }
+
+
 
         private void FixTextDim(ref Dimension dim)
         {
@@ -131,5 +134,7 @@ namespace CheckDimension
             }
             return isEditDim;
         }
+
+
     }
 }

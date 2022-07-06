@@ -11,3 +11,8 @@ C:\Users\Admin\Documents\AutocadDimensionApi\CheckDimension\CheckDimension\obj\D
 C:\Users\Admin\Documents\AutocadDimensionApi\CheckDimension\CheckDimension\obj\Debug\CheckDimension.csproj.CoreCompileInputs.cache
 C:\Users\Admin\Documents\AutocadDimensionApi\CheckDimension\CheckDimension\obj\Debug\CheckDimension.dll
 C:\Users\Admin\Documents\AutocadDimensionApi\CheckDimension\CheckDimension\obj\Debug\CheckDimension.pdb
+C:\Users\Admin\Documents\AutocadDimensionApi\CheckDimension\CheckDimension\bin\Debug\AcWindows.dll
+C:\Users\Admin\Documents\AutocadDimensionApi\CheckDimension\CheckDimension\bin\Debug\AdWindows.dll
+C:\Users\Admin\Documents\AutocadDimensionApi\CheckDimension\CheckDimension\bin\Debug\en-US\AcWindows.resources.dll
+C:\Users\Admin\Documents\AutocadDimensionApi\CheckDimension\CheckDimension\bin\Debug\en-US\AdWindows.resources.dll
+C:\Users\Admin\Documents\AutocadDimensionApi\CheckDimension\CheckDimension\obj\Debug\CheckDimension.csproj.CopyComplete
